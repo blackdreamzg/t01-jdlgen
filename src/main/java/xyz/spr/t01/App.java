@@ -12,19 +12,20 @@ import java.sql.Statement;
  */
 public class App {
 
-    private String url = "jdbc:mysql://49.4.49.101:40001/information_schema?useUnicode=true&characterEncoding=utf8&useSSL=false&useLegacyDatetimeCode=false";
+    private String url = "jdbc:mysql://mysql.zg.com:30000/information_schema?useUnicode=true&characterEncoding=utf8&useSSL=false&useLegacyDatetimeCode=false";
 
-    private String defaultSchemaName = "n01-mdm";
+    private String defaultSchemaName = "bm01";
 
     private String username = "root";
 
-    private String password = "P@ssword";
+    private String password = "pwddevopsBR@2020";
 
     public static void main(String[] args) {
         App app = new App();
+        System.out.println("================开始===================");
         app.executeEntities();
-        System.out.println("===================================");
         app.executeRelationship();
+        System.out.println("================完毕===================");
     }
 
     public void executeEntities() {
@@ -47,52 +48,55 @@ public class App {
                 String tableName = rs.getString("tableName");
                 String columnName = rs.getString("columnName");
                 String dataType = rs.getString("dataType");
+                // System.out.println(dataType);
                 String isNullable = rs.getString("isNullable");
                 Long maxlength = rs.getLong("maxlength");
                 String columnKey = rs.getString("columnKey");
-                if (tableName != null && !tableName.equals(tableNameFlag)) {
-                    if (i > 0) {
-                        sb.append("}\n");
+                if (!"MUL".equals(columnKey)) {
+                    if (tableName != null && !tableName.equals(tableNameFlag)) {
+                        if (i > 0) {
+                            sb.append("}\n");
+                        }
+                        sb.append("entity " + Util.toUpperFristChar(Util.underlineToHump(tableName)) + " {\n");
+                        tableNameFlag = tableName;
                     }
-                    sb.append("entity " + Util.toUpperFristChar(Util.underlineToHump(tableName)) + " {\n");
-                    tableNameFlag = tableName;
-                }
-                sb.append("\t");
-                sb.append(Util.underlineToHump(columnName));
-                if ("bigint".equals(dataType)) {
-                    sb.append(" Long");
-                }
-                if ("varchar".equals(dataType) || "char".equals(dataType) || "text".equals(dataType)) {
-                    sb.append(" String");
-                }
-                if ("tinyint".equals(dataType)) {
-                    sb.append(" Integer");
-                }
-                if ("datetime".equals(dataType)) {
-                    sb.append(" Instant");
-                }
-                if ("decimal".equals(dataType)) {
-                    sb.append(" Double");
-                }
-                if ("int".equals(dataType)) {
-                    sb.append(" Integer");
-                }
-                if ("bit".equals(dataType)) {
-                    sb.append(" Boolean");
-                }
-                if (maxlength != null && maxlength > 0) {
-                    sb.append(" maxlength(" + maxlength + ")");
-                }
+                    sb.append("\t");
+                    sb.append(Util.underlineToHump(columnName));
+                    if ("bigint".equals(dataType)) {
+                        sb.append(" Long");
+                    }
+                    if ("varchar".equals(dataType) || "char".equals(dataType) || "text".equals(dataType)
+                            || "json".equals(dataType)) {
+                        sb.append(" String");
+                    }
+                    if ("tinyint".equals(dataType)) {
+                        sb.append(" Integer");
+                    }
+                    if ("timestamp".equals(dataType) || "date".equals(dataType)) {
+                        sb.append(" Instant");
+                    }
+                    if ("decimal".equals(dataType)) {
+                        sb.append(" Double");
+                    }
+                    if ("int".equals(dataType)) {
+                        sb.append(" Integer");
+                    }
+                    if ("bit".equals(dataType)) {
+                        sb.append(" Boolean");
+                    }
+                    if (maxlength != null && maxlength > 0) {
+                        sb.append(" maxlength(" + maxlength + ")");
+                    }
 
-                if ("UNI".equals(columnKey)) {
-                    sb.append(" unique");
-                }
+                    if ("UNI".equals(columnKey) || "PRI".equals(columnKey)) {
+                        sb.append(" unique");
+                    }
 
-                if ("NO".equals(isNullable)) {
-                    sb.append(" required");
+                    if ("NO".equals(isNullable)) {
+                        sb.append(" required");
+                    }
+                    sb.append("\n");
                 }
-
-                sb.append("\n");
                 // System.out.println(
                 // rs.getString("tableName") + " " + rs.getString("columnName") + " " +
                 // rs.getString("dataType"));
@@ -120,8 +124,8 @@ public class App {
                     + "	REFERENCED_COLUMN_NAME parent_column_name \r\n" + "FROM\r\n"
                     + "	information_schema.KEY_COLUMN_USAGE \r\n" + "WHERE\r\n" + "	CONSTRAINT_SCHEMA = '"
                     + this.defaultSchemaName + "' \r\n" + "	AND CONSTRAINT_NAME <> 'PRIMARY'\r\n"
-                    + " ORDER BY REFERENCED_TABLE_NAME";
-            System.out.println(sql);
+                    + "AND CONSTRAINT_NAME <> 'id' \r\n" + " ORDER BY REFERENCED_TABLE_NAME";
+            // System.out.println(sql);
             Statement st = conn.createStatement();
             ResultSet rs = st.executeQuery(sql);
 
