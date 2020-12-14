@@ -14,7 +14,7 @@ public class App {
 
     private String url = "jdbc:mysql://mysql.zg.com:30000/information_schema?useUnicode=true&characterEncoding=utf8&useSSL=false&useLegacyDatetimeCode=false";
 
-    private String defaultSchemaName = "bm01";
+    private String defaultSchemaName = "bm03";
 
     private String username = "root";
 
@@ -38,7 +38,7 @@ public class App {
                     + " is_nullable isNullable, CHARACTER_MAXIMUM_LENGTH maxlength, COLUMN_KEY columnKey"
                     + " from information_schema.columns where table_schema = '" + defaultSchemaName
                     + "' order by table_name,ordinal_position";
-            System.out.println(sql);
+            // System.out.println(sql);
             Statement st = conn.createStatement();
             ResultSet rs = st.executeQuery(sql);
 
